@@ -23,7 +23,10 @@ class Gallery extends Component {
     } else {
       if (this.state.playingUrl === previewUrl) {
         this.state.audio.pause();
-        this.setState({ playing: false });
+        this.setState({
+          playing: false,
+          playingUrl: null 
+        });
       } else {
         this.state.audio.pause();
         audio.play();
