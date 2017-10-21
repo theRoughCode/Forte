@@ -1,15 +1,51 @@
 body {
   background: black;
   color: #fff;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
 }
 
 .App {
   text-align: center;
-  padding: 5%;
+  padding: 5px;
 }
 
 .App-title {
-  font-size: 26px;
+  font-size: 50px;
+  margin-bottom: 15px;
+}
+
+.search {
+  height: 50px;
+  border-radius: 25px;
+  padding-left: 30px;
+}
+
+.search-button {
+  border-radius: 25px;
+  cursor: pointer;
+  transition-duration: 0.4s;
+}
+
+.search-button:hover {
+  background-color: #dddddd;
+}
+
+/* Header */
+.Header {
+  padding: 20px 50px;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+#user-img {
+  height: 60px;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+#user-name {
+  margin-right: 20px;
+  margin-top: 20px;
 }
 
 /* Profiles */

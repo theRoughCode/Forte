@@ -13,7 +13,7 @@ class Profile extends Component {
           className="profile-img"
           src={artist && artist.images[0].url}
         />
-      <div className="profile-info">
+        <div className="profile-info">
           <div className="profile-name">{artist && artist.name}</div>
           <div className="profile-followers">
             {artist && artist.followers.total} followers
