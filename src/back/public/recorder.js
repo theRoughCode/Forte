@@ -22,8 +22,19 @@
     }
 
     window.stopRecording = function() {
+      console.log('stop')
       recording = false;
       window.Stream.end();
+    }
+
+    window.process = function(){
+      $.ajax({
+        type: "POST",
+        url: "process.py",
+        data: { param: 'demo.wav'}
+      }).done(function( o ) {
+         // do something
+      });
     }
 
     function success(e) {
