@@ -45,7 +45,7 @@ class Gallery extends Component {
           playingUrl: null
         });
       } else {
-        this.state.audio.pause();
+        if(this.state.audio) this.state.audio.pause();
         audio.play();
         this.setState({
           playing: true,
