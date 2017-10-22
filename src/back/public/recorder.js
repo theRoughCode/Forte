@@ -27,16 +27,6 @@
       window.Stream.end();
     }
 
-    window.process = function(){
-      $.ajax({
-        type: "POST",
-        url: "process.py",
-        data: { param: 'demo.wav'}
-      }).done(function( o ) {
-         // do something
-      });
-    }
-
     function success(e) {
       audioContext = window.AudioContext || window.webkitAudioContext;
       context = new audioContext();
