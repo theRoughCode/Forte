@@ -16,10 +16,25 @@ class Search extends Component {
     }
   }
 
-  search() {
-    const BASE_URL = 'https://api.spotify.com/v1/search';
-    const FETCH_URL = BASE_URL + '?q=' + this.state.query + '&type=artist&limit=1';
+  setArtist(artistId) {
     const ALBUM_URL = `https://api.spotify.com/v1/artists/`
+    let url = `${ALBUM_URL}${artistId}/top-tracks?country=CA`
+    fetch(url, {
+      mode: "cors",
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    })
+      .then(res => res.json())
+      .then(json => {
+        const { tracks } = json;
+        this.setState({ tracks });
+      })
+  }
+
+  search(query) {
+    const BASE_URL = 'https://api.spotify.com/v1/search';
+    const FETCH_URL = BASE_URL + '?q=' + query + '&type=artist&limit=1';
 
     fetch(FETCH_URL, {
       mode: "cors",
@@ -34,20 +49,17 @@ class Search extends Component {
         if (json.error || !json.artists.items.length) return null;
         console.log('json', json);
         this.setState({ artist: json.artists.items[0] })
-
-        let url = `${ALBUM_URL}${this.state.artist.id}/top-tracks?country=CA`
-        fetch(url, {
-          mode: "cors",
-          headers: {
-            'Authorization': `Authorization: Bearer ${this.state.access_token}`
-          }
-        })
-          .then(res => res.json())
-          .then(json => {
-            const { tracks } = json;
-            this.setState({ tracks });
-          })
+        this.setArtist(json.artists.items[0].id);
       })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let song = nextProps.song;
+    console.log('song', song);
+    if (song) {
+      let artist = song.artists[0];
+      this.search(artist.name);
+    }
   }
 
   render () {
@@ -62,7 +74,7 @@ class Search extends Component {
               value={ this.state.query }
               onChange={ event => {this.setState({ query: event.target.value })} }
               onKeyPress={ event => {
-                if (event.key === 'Enter') this.search();
+                if (event.key === 'Enter') this.search(this.state.query);
               }}
               />
             <InputGroup.Addon
