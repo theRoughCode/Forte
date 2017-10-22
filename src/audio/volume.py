@@ -119,7 +119,8 @@ class Volume():
         
         # Predicting a new result
         y_pred = regressor.predict(dba)[0]
-        return self.dba_to_db(y_pred)
+        result = math.pow(10, self.dba_to_db(y_pred)/20)
+        return result
     
     
     

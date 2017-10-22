@@ -1,52 +1,70 @@
-from flask import Flask, url_for, request
-from flask_sockets import Sockets
+from flask import Flask, url_for, request, Response
 import scipy.io.wavfile as wavf
 import numpy as np
+import wave
+import json
 
-import test
-'''
-import volume
+# import test
+from volume import Volume
 v = Volume()
-'''
 
 app = Flask(__name__)
-ws = Sockets(app)
 input_file = 'in.wav'
+
+nchannels = 1
+sampwidth = 1
+framerate = 8000
+nframes = 1
 
 def toWav(audio_as_int_array):
     wavf.write(input_file, test.get_rate(), audio_as_int_array)
 
-@ws.route('/websocket', methods = ['GET', 'POST'])
-def audio(ws):
-    if request.method == 'POST':
-        first_message = True
-        total_msg = ""
-        sample_rate = 0
+@app.route('/api', methods=['POST'])
+def audio():
+    # print 'Headers: ', request.headers
+    # print '\n---\n'
+    # print 'Body: ', request.get_data()
+    # print '\n---\n'
+    # print 'Blob: ', request.form['blob']
+    # print '\n---\n'
+    print request.get_json(force=True)
+    print request.get_data()
+    print request.form
 
-        while True:
-            msg = ws.receive()
+    # resp = Response("{'a':'b'}", status=201, mimetype='application/json')
+    # return resp
 
-            if first_message and msg is not None: # the first message should be the sample rate
-                sample_rate = getSampleRate(msg)
-                first_message = False
-                continue
-            elif msg is not None:
-                audio_as_int_array = numpy.frombuffer(msg, 'i2')
-                toWav(audio_as_int_array)
-            else:
-                break
-        ws.send(str(test.get_rate()))
+    return Response(
+        'Hello World',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
 
-# @app.route('/analyze', methods = ['GET', 'POST'])
-# def api_analyze():
-#     if request.method == 'GET':
-#         return str(test.get_rate())
-#     elif request.method == 'POST':
-#         pass
+    # return Response("pong\n", content_type="text/plain;charset=UTF-8")
+
+    # print request.files
+    # msg = request.files['wav']
+    
+    # audio = wave.open(name, 'wb')
+    # audio.setnchannels(nchannels)
+    # audio.setsampwidth(sampwidth)
+    # audio.setframerate(framerate)
+    # audio.setnframes(nframes)
+
+    # blob = open(input_file).read()
+    # audio.writeframes(blob)
+
+    # return str(v.decibel(input_file))
+
+@app.route('/hello', methods=['POST','GET'])
+def hello():
+    return 'Hello World!'
+
+@app.route('/test', methods=['GET'])
+def test():
+    return Response("Hello", content_type="text/plain;charset=UTF-8")
 
 if __name__ == '__main__':
-    # app.run()
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
-    server.serve_forever()
+    app.run(host='100.65.207.162',port=8000,debug=False)
