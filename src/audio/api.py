@@ -35,8 +35,7 @@ def audio(ws):
                 toWav(audio_as_int_array)
             else:
                 break
-    elif request.method == 'GET':
-        return str(test.get_rate())
+        ws.send(str(test.get_rate()))
 
 # @app.route('/analyze', methods = ['GET', 'POST'])
 # def api_analyze():
