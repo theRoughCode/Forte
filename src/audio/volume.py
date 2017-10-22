@@ -7,19 +7,10 @@ Objective:
 """
 
 # Importing libraries
-import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import math
-
 import wave
-import sys
-
-""" 
-v = Volume()
-v.decibel('car_screech.wav') 
-
-"""
     
 class Volume():
     
@@ -43,35 +34,26 @@ class Volume():
             if (self.dataset['SoundCategory'][i] not in cats):
                 cats.append(self.dataset['SoundCategory'][i])
     
-        
     
-    def largest(self):
+    def largest(self, file_name):
         
-        sound = wave.open('car_screech.wav','rb')
-        sound.getparams()=nchannels, sampwidth, framerate, nframes, comptype, compname 
+        sound = wave.open(file_name,'rb')
         
-        if sampwidth != 2:
+        nframes = sound.getnframes()
+        if sound.getsampwidth() != 2:
             raise ValueError("Only supports 16 bit audio formats")
 
-        if nchannels == 2:
+        if sound.getnchannels() == 2:
             nframes*=2 
             
         byteList = np.fromstring(sound.readframes(nframes), dtype = np.int16)
-
         sound.close()
-
         byteList = byteList.astype(np.float) 
 
         maximum = max(byteList)
         minimum = min(byteList)
         peak = (math.fabs(maximum)+math.fabs(minimum))/2
-
-        amp=[]
-        for i in byteList[0 : nframes]:
-            if peak <= (byteList[i]):
-                amp.append(peak)
-      
-        return max(amp)
+        return peak 
     
     
     def db_increase(self):
@@ -83,10 +65,10 @@ class Volume():
             num = math.floor(int(self.dataset['DBA'][i]))
             
             if (num >= 120): #120+ DBA sounds are very painful, according to ASHA.
-                dbs.append(math.floor(num*0.50)) #keeping the sound to a safe range
+                dbs.append(math.floor(int(num*0.50))) #keeping the sound to a safe range
             
             elif (80 <= num < 120):
-                dbs.append(math.floor(num*0.70))
+                dbs.append(math.floor(int(num*0.70)))
                 
             elif (60 <= num < 70):
                 dbs.append(math.floor(int(num + 10)))
@@ -102,28 +84,24 @@ class Volume():
                 
         return dbs
     
-    #TODO: Convert Echo to wav file
-    
     def calculate_dba(self, db):
         """
         Convert db to sones, then to DBA. 
         Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
                  https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
         """
-        return math.floor(int(33.2 * (math.log10((20*math.log10(db) / 40))) + 28))
+        return math.floor(int(33.2 * (math.log10(db / 40))) + 28)
     
     def dba_to_db(self, dba):
         """
         Reverting dba to db. 
         """
-        return math.pow(10, ((dba - 28)/(33.22))) / 40
+        return math.pow(10, ((dba - 28)/(33.22))) 
     
     def decibel(self, file_name):
         
-        from scipy.io.wavfile import read
-        sample_rate, wavdata = read(file_name) # input wav file from Echo here
-        chunks = np.array_split(wavdata, 1)
-        dba = ([self.calculate_dba(math.sqrt(np.mean(chunk**2))) for chunk in chunks])[0]
+        db = 20 * math.log10(self.largest(file_name))
+        dba = self.calculate_dba(db)
         
         new_column = self.db_increase()
         self.dataset['DBIncrease'] = new_column
@@ -141,4 +119,8 @@ class Volume():
         
         # Predicting a new result
         y_pred = regressor.predict(dba)[0]
-        return y_pred
+        return self.dba_to_db(y_pred)
+    
+    
+    
+    
