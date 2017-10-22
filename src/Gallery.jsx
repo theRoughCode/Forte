@@ -7,8 +7,16 @@ class Gallery extends Component {
     this.state = {
       playingUrl: '',
       audio: null,
-      playing: false
+      playing: this.props.playing
     }
+  }
+
+  togglePlay(play) {
+    if (play) this.state.audio.play();
+    else this.state.audio.pause();
+
+    this.props.setPlaying(play);
+    this.setState({ playing: play });
   }
 
   playAudio(track) {
@@ -46,6 +54,10 @@ class Gallery extends Component {
         })
       }
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(this.state.audio && nextProps.playing !== this.state.playing) this.togglePlay(nextProps.playing);
   }
 
   render () {

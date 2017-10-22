@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { ProgressBar, Glyphicon } from 'react-bootstrap';
+import { Glyphicon } from 'react-bootstrap';
 
 class Controls extends Component {
-  constructor(props) {
-    super(props);
+  togglePlay() {
+    this.props.setPlaying(!this.props.playing);
   }
 
   render () {
@@ -12,8 +12,11 @@ class Controls extends Component {
         <div className="buttons-holder">
           <div className="buttons">
             <div className="pp-button-holder">
-              <div className="pp-button">
-                {this.props.isPlaying
+              <div
+                className="pp-button"
+                onClick={() => this.togglePlay()}
+                >
+                {this.props.playing
                     ? <Glyphicon glyph="pause"></Glyphicon>
                     : <Glyphicon glyph="play"></Glyphicon>
                 }
