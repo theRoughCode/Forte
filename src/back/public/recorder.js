@@ -1,8 +1,9 @@
 (function(window) {
   var client = new BinaryClient('ws://localhost:9001');
+  var stream = null;
 
   client.on('open', function() {
-    window.Stream = client.createStream();
+    stream = client.createStream();
 
     if (!navigator.getUserMedia)
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -44,7 +45,7 @@
       }
 
       audioInput.connect(recorder)
-      recorder.connect(context.destination); 
+      recorder.connect(context.destination);
     }
 
     function convertoFloat32ToInt16(buffer) {

@@ -6,22 +6,16 @@ class Gallery extends Component {
     super(props);
     this.state = {
       playingUrl: '',
-      audio: null,
       playing: this.props.playing
     }
   }
 
-  togglePlay(play) {
-    if (play) this.state.audio.play();
-    else this.state.audio.pause();
-
-    this.props.setPlaying(play);
-    this.setState({ playing: play });
+  togglePlay(playing) {
+    this.setState({ playing });
   }
 
   playAudio(track) {
     let previewUrl = track.preview_url;
-    let audio = new Audio(previewUrl);
 
     // pass track to parent
     if (this.state.playingUrl !== previewUrl) {
@@ -29,35 +23,29 @@ class Gallery extends Component {
     }
 
     if (!this.state.playing) {
-      audio.play();
       this.props.setPlaying(true);
       this.setState({
         playing: true,
-        playingUrl:previewUrl,
-        audio
-      })
+        playingUrl: previewUrl
+      });
     } else {
       if (this.state.playingUrl === previewUrl) {
-        this.state.audio.pause();
         this.props.setPlaying(false);
         this.setState({
           playing: false,
           playingUrl: null
         });
       } else {
-        if(this.state.audio) this.state.audio.pause();
-        audio.play();
         this.setState({
           playing: true,
-          playingUrl: previewUrl,
-          audio
+          playingUrl: previewUrl
         })
       }
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if(this.state.audio && nextProps.playing !== this.state.playing) this.togglePlay(nextProps.playing);
+    if(this.state.playingUrl && this.state.playingUrl.length && nextProps.playing !== this.state.playing) this.togglePlay(nextProps.playing);
   }
 
   render () {
