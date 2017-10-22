@@ -17,11 +17,16 @@ class Volume extends Component {
   }
 
   handleChangeComplete = (e) => {
+    console.log('changing spotify');
     this.props.setVolume(this.state.volume);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.volume !== this.state.volume) this.setState({ volume: nextProps.volume });
+    console.log('nextProps.volume', nextProps.volume);
+    if (nextProps.volume !== this.state.volume) {
+      this.setState({ volume: nextProps.volume });
+      this.props.setVolume(nextProps.volume);
+    }
   }
 
   render () {

@@ -38,7 +38,7 @@ class App extends Component {
       playRecording: false,
       external: false,
       progress: 0,
-      volume: 0,
+      volume: null,
       blob: null
     }
   }
@@ -48,7 +48,7 @@ class App extends Component {
     console.log('this.state.blob', blob);
     const TEST = 'http://100.65.207.162:8000/api';
     const URL = 'http://localhost:4000/blob';
-    fetch(URL, {
+    fetch(TEST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -61,11 +61,13 @@ class App extends Component {
       return res.text();
     }, err => console.error(err)).then(data => {
       console.log('res', data);
-      // this.setState({ volume: parseInt(data) });
+      this.setState({ volume: parseInt(data) });
       this.startRecording();
     }, err => {
       console.error(err);
+      this.setState({ volume: parseInt(50) });
     });
+    console.log('this.state.volume', this.state.volume);
   }
 
   updatePlayback = () => {
@@ -165,8 +167,6 @@ class App extends Component {
   }
 
   setVolume = (volume) => {
-    this.setState({ volume });
-
     fetch(`https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`, {
       method: 'PUT',
       mode: 'cors',
