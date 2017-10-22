@@ -6,6 +6,9 @@ import math
 import wave
 import json
 import urllib2
+import random
+
+TESTING = True
 
 from datetime import timedelta
 from functools import update_wrapper
@@ -61,40 +64,42 @@ def crossdomain(origin=None, methods=None, headers=None,
         return update_wrapper(wrapped_function, f)
     return decorator
 
-wav_file = 'demo.wav'
-
 @app.route('/api', methods=['POST'])
 @cross_origin(origin="localhost",headers=['Content-Type', 'Text/Plain'])
 def audio():
-    # print 'Headers: ', request.headers
-    # print '\n---\n'
-    # print 'Body: ', request.get_data()
-    # print '\n---\n'
-    # print 'Blob: ', request.form['blob']
-    # print '\n---\n'
-    # print request.get_json(force=True)
-    print json.dumps(request.json['blob']['blob'])
+    
+    volum = str(random.randint(60, 90))
+    if not TESTING:
+        blobUrl = json.dumps(request.json['blob']['blobURL'])
 
-    file_name = request.json['blob']['blobURL']
+        fake_useragent = 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25'
+        r = urllib2.Request(blobUrl, headers={'User-Agent': fake_useragent})
+        f = urllib2.urlopen(r)
 
-    mp3file = urllib2.urlopen(file_name)
-    with open(wav_file,'wb') as output:
-        output.write(mp3file.read())
+        print blobUrl
 
-    # rate=8000
-    # data2 = np.asarray(request.data, dtype=np.int16)
+        input_name = 'original.wav'
+        output_name = 'demo.wav'
+        input_file = urllib2.urlopen(blobUrl)
+        with open(input_name,'wb') as output: # write to this file
+            output.write(input_file.read())
 
-    # wavf.write(wav_file,rate,data2)
+        nchannels = 1
+        sampwidth = 1
+        framerate = 8000
+        nframes = 1
+        audio = wave.open(output_name, 'wb') # write to this file
 
-    return str(v.decibel(wav_file))
+        audio.setnchannels(nchannels)
+        audio.setsampwidth(sampwidth)
+        audio.setframerate(framerate)
+        audio.setnframes(nframes)
 
-    # return Response(
-    #     'Hello World',
-    #     headers={
-    #         'Access-Control-Allow-Origin': '*',
-    #         'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept'
-    #     }
-    # )
+        blob = open(input_name).read() 
+        audio.writeframes(blob)
+        volum = str(v.decibel(wav_file))
+
+    return Response( volum, content_type="text/plain;charset=UTF-8" )
 
 @app.route('/test', methods=['GET'])
 def test():
