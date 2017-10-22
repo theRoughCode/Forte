@@ -1,7 +1,7 @@
 """
 Forte web app - volume portion
 
-Objective: 
+Objective:
     - Get background noise, Amazon echo
 
 """
@@ -11,14 +11,15 @@ import numpy as np
 import pandas as pd
 import math
 import wave
-    
+import sys
+
 class Volume():
-    
+
     def __init__(self):
-        
+
         # Importing the self.dataset
         self.dataset = pd.read_csv('SoundLevels.csv')
-        
+
         # Replace - with avg. of the two extrema
         for i in range(len(self.dataset.DBA.tolist())):
             if (self.dataset['DBA'][i].find('-') != -1):
@@ -27,21 +28,20 @@ class Volume():
             else:
                 self.dataset['DBA'][i] = math.floor(int(
                         self.dataset['DBA'][i]))
-        
-        
+                
     def largest(self, file_name):
         sound = wave.open(file_name,'rb')
-        
+
         nframes = sound.getnframes()
         if sound.getsampwidth() != 2:
             raise ValueError("Only supports 16 bit audio formats")
 
         if sound.getnchannels() == 2:
-            nframes*=2 
-            
+            nframes*=2
+
         byteList = np.fromstring(sound.readframes(nframes), dtype = np.int16)
         sound.close()
-        byteList = byteList.astype(np.float) 
+        byteList = byteList.astype(np.float)
 
         maximum = max(byteList)
         minimum = min(byteList)
@@ -70,15 +70,15 @@ class Volume():
     
     def calculate_dba(self, db):
         """
-        Convert db to sones, then to DBA. 
+        Convert db to sones, then to DBA.
         Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
                  https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
         """
         return 33.2 * (math.log10(db / 40)) + 28
-    
+
     def dba_to_db(self, dba):
         """
-        Reverting dba to db. 
+        Reverting dba to db.
         """
         return pow(10, ((dba - 28)/(33.22)))
     
@@ -104,4 +104,3 @@ class Volume():
         else:
             return self.dba_to_db(y_pred)
 
-    
