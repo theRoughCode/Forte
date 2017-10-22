@@ -11,7 +11,6 @@ class Header extends Component {
 
   render () {
     let { user } = this.props;
-    console.log('user', user);
 
     return (
       <div className="Header">

@@ -3,9 +3,8 @@ import queryString from 'query-string';
 import 'whatwg-fetch';
 import './App.css';
 import Header from './Header';
-import Profile from './Profile';
-import Gallery from './Gallery';
-import { FormGroup, FormControl, InputGroup, Glyphicon } from 'react-bootstrap';
+import Search from './Search';
+import Player from './Player/Player';
 
 /*
 https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&redirect_uri=http://localhost:3000/
@@ -22,11 +21,9 @@ class App extends Component {
     const access_token = queryString.parse(window.location.hash).access_token;
 
     this.state = {
-      query: '',
-      artist: null,
-      tracks: null,
-      user:null,
-      access_token
+      access_token,
+      song: null,
+      isPlaying: false
     }
 
     fetch(FETCH_URL, {
@@ -43,81 +40,36 @@ class App extends Component {
       });
   }
 
-  search() {
-    const BASE_URL = 'https://api.spotify.com/v1/search';
-    const FETCH_URL = BASE_URL + '?q=' + this.state.query + '&type=artist&limit=1';
-    const ALBUM_URL = `https://api.spotify.com/v1/artists/`
+  setSong = (song) => {
+    this.setState({ song });
+    console.log('song', song);
+  }
 
-    fetch(FETCH_URL, {
-      mode: "cors",
-      headers: {
-        'Authorization': `Authorization: Bearer ${this.state.access_token}`
-      }
-    })
-      .then(res => {
-        return res.json();
-      })
-      .then(json => {
-        if (json.error) return null;
-        this.setState({ artist: json.artists.items[0] })
-
-        let url = `${ALBUM_URL}${this.state.artist.id}/top-tracks?country=CA`
-        fetch(url, {
-          mode: "cors",
-          headers: {
-            'Authorization': `Authorization: Bearer ${this.state.access_token}`
-          }
-        })
-          .then(res => res.json())
-          .then(json => {
-            const { tracks } = json;
-            this.setState({ tracks });
-          })
-      })
+  setPlaying = (isPlaying) => {
+    this.setState({ isPlaying });
   }
 
   render() {
     return (
-      <div>
+      <div className="App">
         <Header
           user={this.state.user}
         />
-        <div className="App">
+        <div className="Content">
           <div className="App-title">Forte</div>
-          <FormGroup>
-            <InputGroup>
-              <FormControl
-                className="search"
-                type="text"
-                placeholder="Search for an artist"
-                value={ this.state.query }
-                onChange={ event => {this.setState({ query: event.target.value })} }
-                onKeyPress={ event => {
-                  if (event.key === 'Enter') this.search();
-                }}
-                />
-              <InputGroup.Addon
-                className="search-button"
-                onClick={() => this.search()}
-              >
-                <Glyphicon glyph="search"></Glyphicon>
-              </InputGroup.Addon>
-            </InputGroup>
-          </FormGroup>
-          {
-            this.state.artist &&
-            (
-              <div>
-                <Profile
-                  artist={this.state.artist}
-                  />
-                <Gallery
-                  tracks={this.state.tracks}
-                  />
-              </div>
-            )
-          }
+          <Search
+            accessToken={this.state.access_token}
+            setSong={this.setSong}
+            setPlaying={this.setPlaying}
+          />
         </div>
+        {this.state.song && (
+          <Player
+            className="Player"
+            song={this.state.song}
+            isPlaying={this.state.isPlaying}
+          />
+        )}
       </div>
     )
   }
