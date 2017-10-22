@@ -24,8 +24,11 @@ class App extends Component {
     const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
 
+
+
     setInterval(function() {
-      fetch(url, {
+      this.pauseRecording();
+      fetch('localhost:5000/bogus', {
         method: "POST",
         body: Blob,
         headers: {
@@ -34,6 +37,7 @@ class App extends Component {
       }).then(function(res) {
          console.log(res.status);
           setVolume(parseInt(res.text()));
+          this.startRecording();
       }, function(error) {
         error.message
       })
@@ -81,6 +85,9 @@ class App extends Component {
             });
           }
         });
+
+  this.startRecording();
+
   }
 
   setSong = (song) => {
@@ -127,9 +134,6 @@ class App extends Component {
     })
   }
 
-
-
-
   render() {
     return (
       <div className="App">
@@ -144,12 +148,6 @@ class App extends Component {
             user={this.state.user}
             />
         </div>
-        <Button
-          bsStyle="primary"
-          bsSize="large"
-          onClick={() => this.startRecording()}
-          active
-          >Start</Button>
         <Button
           bsStyle="primary"
           bsSize="large"
