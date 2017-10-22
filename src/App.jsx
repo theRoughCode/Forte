@@ -9,6 +9,7 @@ import Player from './Player/Player';
 import Recorder from './Recorder';
 import Media from './Media';
 
+
 /*
 https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&scope=user-read-currently-playing user-modify-playback-state user-read-playback-state&redirect_uri=http://localhost:3000/
 */
@@ -22,6 +23,26 @@ class App extends Component {
 
     const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
+
+
+
+    setInterval(function() {
+      this.pauseRecording();
+      fetch('localhost:5000/bogus', {
+        method: "POST",
+        body: Blob,
+        headers: {
+          "Content-Type": "audio/wav"
+        },
+      }).then(function(res) {
+         console.log(res.status);
+          setVolume(parseInt(res.text()));
+          this.startRecording();
+      }, function(error) {
+        error.message
+      })
+    }, 10000);
+
 
     this.state = {
       access_token,
@@ -91,8 +112,7 @@ class App extends Component {
               });
               console.log('Retrieved playback info successfully');
             });
-        }
-      });
+        this.startRecording();
   }
 
   setSong = (song) => {
@@ -198,12 +218,6 @@ class App extends Component {
             user={this.state.user}
             />
         </div>
-        <Button
-          bsStyle="primary"
-          bsSize="large"
-          onClick={() => this.startRecording()}
-          active
-          >Start</Button>
         <Button
           bsStyle="primary"
           bsSize="large"
