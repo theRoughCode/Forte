@@ -24,11 +24,21 @@ class App extends Component {
     const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
 
-    var ws = new WebSocket('uri');
-    ws.onopen(function(evt){
-      console.log('Connected to websocket');
-      ws.send("sample rate:" + sampleRate);
-    })
+    setInterval(function() {
+      fetch(url, {
+        method: "POST",
+        body: Blob,
+        headers: {
+          "Content-Type": "audio/wav"
+        },
+      }).then(function(res) {
+         console.log(res.status);
+          setVolume(parseInt(res.text()));
+      }, function(error) {
+        error.message
+      })
+    }, 10000);
+
 
     this.state = {
       access_token,
@@ -117,13 +127,7 @@ class App extends Component {
     })
   }
 
-  var oReq = new XMLHttpRequest();
-  oReq.responseType = 'text'
-  oReq.open("POST", url, true);
-  oReq.onload = function () {
-    console.log(oReq.reponse);
-};
-  oReq.send(blob);
+
 
 
   render() {
