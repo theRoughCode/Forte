@@ -7,122 +7,121 @@ Objective:
 """
 
 # Importing libraries
-import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import math
 import wave
-import sys
+import decimal 
 
-# Importing the dataset
-dataset = pd.read_csv('SoundLevels.csv')
-dataset.round()
-
-X = dataset.iloc[:, 1].values
-y = dataset.iloc[:, 2].values
-
-# Replace - with avg. of the two extrema
-for i in range(len(dataset.DBA.tolist())):
-    if (dataset['DBA'][i].find('-') != -1):
-        subset = dataset['DBA'][i].split('-')
-        dataset['DBA'][i] = (int(subset[0]) + int(subset[1])) // 2
-    else:
-        dataset['DBA'][i] = math.floor(int(dataset['DBA'][i]))
-
-def get_categories(dataset):
-    cats = []
-    for i in range(len(dataset.SoundCategory.tolist())):
-        if (dataset['SoundCategory'][i] not in cats):
-            cats.append(dataset['SoundCategory'][i])
-    return cats
-
-category_list = get_categories(dataset)
-
-def largest():
+class Volume():
     
-    sound = wave.open('car_screech.wav','r')
-
-    #Extract Raw Audio from Wav File
-    signal = sound.readframes(-1)
-    signal = np.fromstring(signal, 'Int16')
-    print(signal)
+    def __init__(self):
         
-    #If Stereo
-    if sound.getnchannels() == 2:
-        print("Mono files only")
-        sys.exit(0)
-    #print np.arange(signal)
+        # Importing the self.dataset
+        self.dataset = pd.read_csv('SoundLevels.csv')
+        
+        # Replace - with avg. of the two extrema
+        for i in range(len(self.dataset.DBA.tolist())):
+            if (self.dataset['DBA'][i].find('-') != -1):
+                subset = self.dataset['DBA'][i].split('-')
+                self.dataset['DBA'][i] = (int(subset[0]) + int(subset[1])) // 2
+            else:
+                self.dataset['DBA'][i] = math.floor(int(
+                        self.dataset['DBA'][i]))
+        
+        
+    def largest(self, file_name):
+        sound = wave.open(file_name,'rb')
+        
+        nframes = sound.getnframes()
+        if sound.getsampwidth() != 2:
+            raise ValueError("Only supports 16 bit audio formats")
+
+        if sound.getnchannels() == 2:
+            nframes*=2 
+            
+        byteList = np.fromstring(sound.readframes(nframes), dtype = np.int16)
+        sound.close()
+        byteList = byteList.astype(np.float) 
+
+        maximum = max(byteList)
+        minimum = min(byteList)
+        peak = (math.fabs(maximum)+math.fabs(minimum))/2
+        return peak 
     
-    return max(signal, key=abs)
-
-largest()
     
-def calculate_dba(db):
-    """
-    Convert db to sones, then to DBA. 
-    Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
-             https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
-    """
-    return math.floor(int(33.2 * (math.log10((20*math.log10(db) / 40))) + 28))
-
-
-from scipy.io.wavfile import read
-
-#TODO: Convert Echo to wav file
- 
-sample_rate, wavdata = read('car_screech.wav') # input wav file from Echo here
-chunks = np.array_split(wavdata, 1)
-dba = ([calculate_dba(math.sqrt(np.mean(chunk**2))) for chunk in chunks])[0]
-
-def db_increase():
-    """
-    ASHA noise scale: https://www.asha.org/public/hearing/Noise/
-    """
-    dbs = []
-    for i in range(len(dataset.DBA.tolist())):
-        num = math.floor(int(dataset['DBA'][i]))
+    def volume_pred(self):
+        """
+        ASHA noise scale: https://www.asha.org/public/hearing/Noise/
+        The noise's new level
+                
+        """
         
-        if (num >= 120): #120+ DBA sounds are very painful, according to ASHA.
-            dbs.append(math.floor(num*0.50)) #keeping the sound to a safe range
+        dbs = []
+        data = self.dataset.DBA.tolist()
+        syndata = data[:]
+        for i in range(len(syndata)):
+           
+            x = self.dba_to_db(syndata[i])
+            
+            if (x/10 - 12 < 3):
+                num1 = decimal.Decimal(math.pow(10, x/10 - 12))
+            else:
+                num1 = decimal.Decimal(1)
+            
+            num2 = decimal.Decimal(math.pow(10, -9))
+            
+            den = decimal.Decimal(math.pow(10, -3))
+            
+            volume = decimal.Decimal((num1 - num2) / den)
+            
+            dbs.append(volume)
+            
+        return dbs
+    
+    
+    def calculate_dba(self, db):
+        """
+        Convert db to sones, then to DBA. 
+        Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
+                 https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
+        """
+        return 33.2 * (math.log10(db / 40)) + 28
+    
+    def dba_to_db(self, dba):
+        """
+        Reverting dba to db. 
+        """
         
-        elif (80 <= num < 120):
-            dbs.append(math.floor(num*0.70))
-            
-        elif (60 <= num < 70):
-            dbs.append(math.floor(int(num + 10)))
-            
-        elif (40 <= num < 60):
-            dbs.append(math.floor(int(num + 20)))
+        return math.pow(10, (dba - 28)/33.22) 
+    
+    def decibel(self, file_name):
+        db = 20 * math.log10(self.largest(file_name))
+        dba = self.calculate_dba(db)
+        new_column = self.volume_pred()
+        self.dataset['DBChange'] = new_column
+        X = self.dataset.iloc[:, 1:2].values
+        y = self.dataset.iloc[:, 3].values
         
-        elif (num < 40):
-            dbs.append(math.floor(int(num*2)))
-            
+        # Fitting SVR to the dataset
+        from sklearn.svm import SVR
+        regressor = SVR(kernel = 'rbf')
+        regressor.fit(X, y)
+        
+        """
+        KERNELING
+        mapping of data into a higher dimension
+        
+        """
+        # Predicting a new result
+        y_pred = regressor.predict(dba)
+        
+        if (y_pred <= 0):
+            return 0
+        elif (y_pred >= 100):
+            return 100
         else:
-            dbs.append(math.floor(int(num)))
-            
-    return dbs
-
-new_column = db_increase()
-dataset['DBIncrease'] = new_column
-#dataset.insert(2,'DBIncrease', new_column)
-X = dataset.iloc[:, 1:2].values
-y = dataset.iloc[:, 3].values
-
-
-# Splitting the dataset into the Training set and Test set
-from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
-
-# PART 2: REGRESSION MODEL  
-
-from sklearn.ensemble import RandomForestRegressor
-regressor = RandomForestRegressor(n_estimators = 10, random_state = 0)
-regressor.fit(X, y)
-
-
-
-# Predicting a new result
-y_pred = regressor.predict(dba)[0]
+            return self.dba_to_db(y_pred)*100
 
 
 
