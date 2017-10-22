@@ -31,8 +31,8 @@ binaryServer.on('connection', function(client) {
 
   var fileWriter = new wav.FileWriter(outFile, {
     channels: 1,
-    sampleRate: 48000,
-    bitDepth: 16
+    sampleRate: 24000,
+    bitDepth: 32
   });
 
   client.on('stream', function(stream, meta) {
