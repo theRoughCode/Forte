@@ -7,7 +7,7 @@ import Search from './Search';
 import Player from './Player/Player';
 
 /*
-https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&redirect_uri=http://localhost:3000/
+https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&scope=user-read-currently-playing user-modify-playback-state&redirect_uri=http://localhost:3000/
 */
 
 class App extends Component {
@@ -23,6 +23,7 @@ class App extends Component {
     this.state = {
       access_token,
       song: null,
+      user: null,
       isPlaying: false
     }
 
@@ -38,6 +39,25 @@ class App extends Component {
       .then(user => {
         this.setState({ user });
       });
+
+      fetch(`${FETCH_URL}/player/currently-playing`, {
+        mode: "cors",
+        headers: {
+          'Authorization': `Authorization: Bearer ${access_token}`
+        }
+      })
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
+          if (data.is_playing) {
+            this.setState({
+              isPlaying: true,
+              song: data.item
+            });
+            console.log('this.state', this.state);
+          }
+        });
   }
 
   setSong = (song) => {
@@ -46,7 +66,18 @@ class App extends Component {
   }
 
   setPlaying = (isPlaying) => {
-    this.setState({ isPlaying });
+    let opr = (isPlaying) ? 'play' : 'pause';
+    fetch(`https://api.spotify.com/v1/me/player/${opr}`, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    }).then(res => {
+        if (res.ok) {
+          this.setState({ isPlaying });
+        }
+    });
   }
 
   render() {
@@ -59,6 +90,7 @@ class App extends Component {
           <div className="App-title">Forte</div>
           <Search
             accessToken={this.state.access_token}
+            song={this.state.song}
             playing={this.state.isPlaying}
             setSong={this.setSong}
             setPlaying={this.setPlaying}
