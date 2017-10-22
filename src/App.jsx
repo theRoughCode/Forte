@@ -21,12 +21,12 @@ class App extends Component {
 
     super(props);
 
-    const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
 
     setInterval(() => {
-      if (this.state.blob) this.sendBlob();
-      this.pauseRecording();
+      console.log('this.state.isRecording', this.state.isRecording);
+      if (this.state.isRecording) this.pauseRecording();
+      else this.startRecording();
     }, 10000);
 
     this.state = {
@@ -34,47 +34,37 @@ class App extends Component {
       song: null,
       user: null,
       isPlaying: false,
-      isRecording: true,
+      isRecording: false,
       playRecording: false,
       external: false,
       progress: 0,
       volume: 0,
       blob: null
     }
-
-    // Get user info
-    fetch(FETCH_URL, {
-      mode: "cors",
-      headers: {
-        'Authorization': `Authorization: Bearer ${access_token}`
-      }
-    })
-      .then(res => {
-        return res.text();
-      })
-      .then(user => {
-        this.setState({ user });
-      });
-
-      this.updatePlayback();
   }
 
-  sendBlob = () => {
+  sendBlob = (blob) => {
     console.log('sending blob');
-    fetch('http://localhost:4000/blob', {
+    console.log('this.state.blob', blob);
+    const TEST = 'http://100.65.207.162:8000/api';
+    const URL = 'http://localhost:4000/blob';
+    fetch(TEST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        blob: this.state.blob
+        blob: blob
       })
     }).then((res) => {
-       return res.json();
-    }).then(data => {
+      console.log('res', res);
+      return res.text();
+    }, err => console.error(err)).then(data => {
       console.log('res', data);
       // this.setState({ volume: parseInt(data) });
-      // this.startRecording();
+      this.startRecording();
+    }, err => {
+      console.error(err);
     });
   }
 
@@ -192,7 +182,7 @@ class App extends Component {
 
   setBlob = (blob) => {
     console.log('blob', blob);
-    this.setState({ blob });
+    this.sendBlob(blob);
   }
 
   startRecording = () => {
@@ -212,10 +202,35 @@ class App extends Component {
   }
 
   playRecording = () => {
-    this.setState({
-      playRecording: true
-    })
+    this.setState({ playRecording: true });
   }
+
+  componentWillMount() {
+    const FETCH_URL = `https://api.spotify.com/v1/me`;
+
+    setTimeout(() => this.startRecording(), 1000);
+
+    // Get user info
+    fetch(FETCH_URL, {
+      mode: "cors",
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    })
+      .then(res => {
+        return res.text();
+      })
+      .then(user => {
+        this.setState({ user });
+      });
+
+      this.updatePlayback();
+  }
+
+  // 
+  // <Button bsStyle="primary" bsSize="large" onClick={this.startRecording}>record</Button>
+  // <Button bsStyle="primary" bsSize="large" onClick={this.pauseRecording}>pause</Button>
+  // <Button bsStyle="primary" bsSize="large" onClick={this.playRecording}>play</Button>
 
   render() {
     return (
