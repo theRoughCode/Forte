@@ -47,7 +47,7 @@ class Search extends Component {
       })
       .then(json => {
         if (json.error || !json.artists.items.length) return null;
-        console.log('json', json);
+        
         this.setState({ artist: json.artists.items[0] })
         this.setArtist(json.artists.items[0].id);
       })
@@ -55,7 +55,7 @@ class Search extends Component {
 
   componentWillReceiveProps(nextProps) {
     let song = nextProps.song;
-    console.log('song', song);
+
     if (song) {
       let artist = song.artists[0];
       this.search(artist.name);
