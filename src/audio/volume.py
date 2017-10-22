@@ -7,6 +7,7 @@ Objective:
 """
 
 # Importing libraries
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import math
@@ -29,14 +30,7 @@ class Volume():
                         self.dataset['DBA'][i]))
         
         
-        cats = []
-        for i in range(len(self.dataset.SoundCategory.tolist())):
-            if (self.dataset['SoundCategory'][i] not in cats):
-                cats.append(self.dataset['SoundCategory'][i])
-    
-    
     def largest(self, file_name):
-        
         sound = wave.open(file_name,'rb')
         
         nframes = sound.getnframes()
@@ -56,33 +50,21 @@ class Volume():
         return peak 
     
     
-    def db_increase(self):
+    def volume_pred(self, wave_file):
         """
         ASHA noise scale: https://www.asha.org/public/hearing/Noise/
+        The noise's new level
+                
         """
         dbs = []
         for i in range(len(self.dataset.DBA.tolist())):
-            num = int(self.dataset['DBA'][i])
-            
-            if (num >= 120): #120+ DBA sounds are very painful, according to ASHA.
-                dbs.append(num - 30) #keeping the sound to a safe range
-        
-            elif (80 <= num < 120):
-                dbs.append(num - 20)
-                
-            elif (60 <= num < 70):
-                dbs.append(num + 10)
-                
-            elif (40 <= num < 60):
-                dbs.append(num + 20)
-            
-            elif (num < 40):
-                dbs.append(num*2)
-                
-            else:
-                dbs.append(num*2)
+            num = float(self.dataset['DBA'][i])
+            volume = (pow(10, (self.dba_to_db(num)/10 - 12)) - (pow(10, -9))) / pow(10, -3)
+            print(volume)
+            dbs.append(volume)
                 
         return dbs
+    
     
     def calculate_dba(self, db):
         """
@@ -96,18 +78,17 @@ class Volume():
         """
         Reverting dba to db. 
         """
-        return math.pow(10, ((dba - 28)/(33.22))) 
+        return math.pow(10, ((dba - 28)/(33.22)))
     
     def decibel(self, file_name):
-        
         db = 20 * math.log10(self.largest(file_name))
         dba = self.calculate_dba(db)
+        print(db,dba)
         
-        new_column = self.db_increase()
-        self.dataset['DBIncrease'] = new_column
+        new_column = self.volume_pred(file_name)
+        self.dataset['DBChange'] = new_column
         X = self.dataset.iloc[:, 1:2].values
         y = self.dataset.iloc[:, 3].values
-        
         # Splitting the self.dataset into the Training set and Test set
         from sklearn.cross_validation import train_test_split
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
@@ -116,10 +97,11 @@ class Volume():
         from sklearn.ensemble import RandomForestRegressor
         regressor = RandomForestRegressor(n_estimators = 10, random_state = 0)
         regressor.fit(X, y)
+
+        y_pred = regressor.predict(dba)
         
-        # Predicting a new result
-        y_pred = regressor.predict(dba)[0]
-        return self.dba_to_db(y_pred)
+        return (math.pow(10, self.dba_to_db(y_pred)/10 - 12) - (
+                math.pow(10, -9))) / math.pow(10, -3)
     
     
     
