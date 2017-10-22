@@ -7,14 +7,14 @@ class Recorder extends Component {
 
     this.state = {
       blobUrl: null,
-      strokeColor: '#fff',
-      bgColor: 'blue'
+      strokeColor: '#000000',
+      bgColor: '#417ee0'
     }
   }
 
   onStop = (blob) => {
-    console.log('blob', blob);
     this.setState({ blobUrl: blob.blobURL });
+    this.props.setBlob(blob);
   }
 
   playRecording() {
