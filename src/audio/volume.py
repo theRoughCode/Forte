@@ -95,7 +95,13 @@ class Volume():
         regressor = RandomForestRegressor(n_estimators = 10, random_state = 0)
         regressor.fit(X, y)
 
-        y_pred = regressor.predict(self.dba_to_db(dba))
+        y_pred = regressor.predict(dba) 
         
-        return math.fabs(y_pred)
+        if (y_pred <= 0):
+            return 0
+        elif (y_pred >= 100):
+            return 100
+        else:
+            return self.dba_to_db(y_pred)
+
     
