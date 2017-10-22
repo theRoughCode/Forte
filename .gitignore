@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/src/back/node_modules
+/src/back/demo.wav
 
 # testing
 /coverage
