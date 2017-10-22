@@ -5,8 +5,20 @@ body {
 }
 
 .App {
+  background: blue; /* For browsers that do not support gradients */
+  background: -webkit-linear-gradient(blue, black); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(blue, black); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(blue, black); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(blue, black); /* Standard syntax */
+  height: 100%;
+}
+
+.Content {
   text-align: center;
   padding: 5px;
+  width: 60%;
+  margin: auto;
+  margin-bottom: 100px;
 }
 
 .App-title {
@@ -14,10 +26,12 @@ body {
   margin-bottom: 15px;
 }
 
+/* Search */
+
 .search {
   height: 50px;
   border-radius: 25px;
-  padding-left: 30px;
+  padding-left: 30px;;
 }
 
 .search-button {
@@ -151,3 +165,183 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }*/
+
+
+/* Player */
+.Player {
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 90px;
+  background: #383838;
+  display: flex;
+  box-shadow: 0px -3px 30px black;
+}
+
+/* Song */
+.Song {
+  margin: 15px 20px 0 20px;
+  display: flex;
+  width: 20%;
+}
+
+#song-img {
+  margin-right: 20px;
+  width: 60px;
+  height: 60px;
+}
+
+#song-info {
+  margin-top: 5px;
+}
+
+#song-artist {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+/* Controls */
+.Controls {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+.buttons-holder {
+  height: 90%;
+  display: flex;
+}
+
+.buttons {
+  width: 50%;
+  height: 100%;
+  margin: auto;
+  display: flex;
+}
+
+.pp-button-holder {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  border-radius: 20px;
+  border: 1px solid #a8a8a8;
+  display: flex;
+  cursor: pointer;
+  color: #a8a8a8;
+  font-size: 17px;
+  transition-duration: 0.2s;
+}
+
+.pp-button-holder:hover {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  border: 1px solid white;
+  color: white;
+}
+
+.pp-button {
+  margin: auto;
+}
+
+.bar-holder {
+  height: 30px;
+  display: flex;
+}
+
+.bar {
+  width: 50%;
+  height: 10px;
+  margin: auto;
+  cursor: pointer;
+  transition-duration: 0.2s;
+  position: relative;
+}
+
+.bar:hover {
+  height: 20px;
+}
+
+#progress,
+#progress-button {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+}
+
+#progress {
+  background: white;
+  width: 100%;
+  top: 20%;
+  height: 60%;
+  margin: auto;
+  border-radius: 10px;
+}
+
+#progress-played {
+  background: green;
+  width: 30%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+#progress-button {
+  width: 11px;
+  height: 11px;
+  top: 0;
+  margin-left: 29%;
+  background: #ef8913;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+/* Volume */
+.Volume {
+  right: 0;
+  width: 20%;
+  display: flex;
+}
+
+.volume-holder-holder {
+  margin: auto;
+  width: 60%;
+}
+
+.volume-holder {
+  margin: auto;
+  font-size: 20px;
+  color: #a8a8a8;
+  float: left;
+  margin-top: 2px;
+}
+
+.Volume .bar-holder {
+  margin: auto;
+  margin-left: 10px;
+  width: 80%;
+  height: 30px;
+  float: left;
+}
+
+.Volume .bar {
+  width: 100%;
+  height: 10px;
+  margin: auto;
+  cursor: pointer;
+  transition-duration: 0.2s;
+  position: relative;
+  background: white;
+  border-radius: 10px;
+}
+
+.Volume .bar:hover {
+  height: 20px;
+}
+
+.Volume #progress-played {
+  background: green;
+  width: 30%;
+  height: 100%;
+  border-radius: inherit;
+}
