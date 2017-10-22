@@ -10,7 +10,7 @@ import Recorder from './Recorder';
 import Media from './Media';
 
 /*
-https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&scope=user-read-currently-playing user-modify-playback-state&redirect_uri=http://localhost:3000/
+https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&scope=user-read-currently-playing user-modify-playback-state user-read-playback-state&redirect_uri=http://localhost:3000/
 */
 
 class App extends Component {
@@ -30,9 +30,12 @@ class App extends Component {
       isPlaying: false,
       isRecording: false,
       playRecording: false,
-      external: false
+      external: false,
+      progress: 0,
+      volume: 0
     }
 
+    // Get user info
     fetch(FETCH_URL, {
       mode: "cors",
       headers: {
@@ -46,24 +49,50 @@ class App extends Component {
         this.setState({ user });
       });
 
-      fetch(`${FETCH_URL}/player/currently-playing`, {
-        mode: "cors",
-        headers: {
-          'Authorization': `Authorization: Bearer ${access_token}`
-        }
+      this.updatePlayback();
+  }
+
+  updatePlayback = () => {
+    const FETCH_URL = `https://api.spotify.com/v1/me`;
+
+    // Get current song
+    fetch(`${FETCH_URL}/player/currently-playing`, {
+      mode: "cors",
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    })
+      .then(res => {
+        return (res.status === 200) ? res.json() : null;
       })
-        .then(res => {
-          return (res.status === 200) ? res.json() : null;
-        })
-        .then(data => {
-          if (data && data.is_playing) {
-            this.setState({
-              isPlaying: true,
-              song: data.item,
-              external: true
+      .then(data => {
+        if (data && data.is_playing) {
+          this.setState({
+            isPlaying: true,
+            song: data.item,
+            external: true
+          });
+
+          // Get user playback info
+          fetch(`${FETCH_URL}/player`, {
+            mode: "cors",
+            headers: {
+              'Authorization': `Authorization: Bearer ${this.state.access_token}`
+            }
+          })
+            .then(res => {
+              return (res.status === 200) ? res.json() : null;
+            })
+            .then(data => {
+              if (!data) return;
+              this.setState({
+                progress: data.progress_ms,
+                volume: data.device.volume_percent
+              });
+              console.log('Retrieved playback info successfully');
             });
-          }
-        });
+        }
+      });
   }
 
   setSong = (song) => {
@@ -71,7 +100,6 @@ class App extends Component {
   }
 
   setPlaying = (isPlaying) => {
-    console.log('this.state.external', this.state.external);
     if (this.state.external) {
       let opr = (isPlaying) ? 'play' : 'pause';
       fetch(`https://api.spotify.com/v1/me/player/${opr}`, {
@@ -88,6 +116,52 @@ class App extends Component {
     } else {
       this.setState({ isPlaying });
     }
+  }
+
+  prevSong = () => {
+    console.log('previous song');
+    fetch(`https://api.spotify.com/v1/me/player/previous`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    }).then(res => {
+      if (!res.ok) {
+        console.log('Failed to skip to previous song');
+      } else setTimeout(() => this.updatePlayback(), 200);
+    });
+  }
+
+  nextSong = () => {
+    console.log('next song');
+    fetch(`https://api.spotify.com/v1/me/player/next`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    }).then(res => {
+      if (!res.ok) {
+        console.log('Failed to skip to next song');
+      } else setTimeout(() => this.updatePlayback(), 200);
+    });
+  }
+
+  setVolume = (volume) => {
+    this.setState({ volume });
+
+    fetch(`https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Authorization': `Authorization: Bearer ${this.state.access_token}`
+      }
+    }).then(res => {
+      if (!res.ok) {
+        console.log('Failed to adjust Spotify volume');
+      }
+    });
   }
 
   startRecording = () => {
@@ -165,8 +239,14 @@ class App extends Component {
           <Player
             className="Player"
             song={this.state.song}
+            progress={this.state.progress}
+            volume={this.state.volume}
             playing={this.state.isPlaying}
             setPlaying={this.setPlaying}
+            setVolume={this.setVolume}
+            prevSong={this.prevSong}
+            nextSong={this.nextSong}
+            sync={this.updatePlayback}
           />
       )}
     </div>
