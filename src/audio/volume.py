@@ -62,25 +62,25 @@ class Volume():
         """
         dbs = []
         for i in range(len(self.dataset.DBA.tolist())):
-            num = math.floor(int(self.dataset['DBA'][i]))
+            num = int(self.dataset['DBA'][i])
             
             if (num >= 120): #120+ DBA sounds are very painful, according to ASHA.
-                dbs.append(math.floor(int(num*0.50))) #keeping the sound to a safe range
-            
+                dbs.append(num - 30) #keeping the sound to a safe range
+        
             elif (80 <= num < 120):
-                dbs.append(math.floor(int(num*0.70)))
+                dbs.append(num - 20)
                 
             elif (60 <= num < 70):
-                dbs.append(math.floor(int(num + 10)))
+                dbs.append(num + 10)
                 
             elif (40 <= num < 60):
-                dbs.append(math.floor(int(num + 20)))
+                dbs.append(num + 20)
             
             elif (num < 40):
-                dbs.append(math.floor(int(num*2)))
+                dbs.append(num*2)
                 
             else:
-                dbs.append(math.floor(int(num)))
+                dbs.append(num*2)
                 
         return dbs
     
@@ -90,7 +90,7 @@ class Volume():
         Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
                  https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
         """
-        return math.floor(int(33.2 * (math.log10(db / 40))) + 28)
+        return 33.2 * (math.log10(db / 40)) + 28
     
     def dba_to_db(self, dba):
         """
