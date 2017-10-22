@@ -15,7 +15,7 @@ import math
 # Importing the dataset
 dataset = pd.read_csv('SoundLevels.csv')
 dataset.round()
-    
+
 X = dataset.iloc[:, 1].values
 y = dataset.iloc[:, 2].values
 
@@ -43,7 +43,7 @@ def calculate_dba(db):
     Formula: http://www.sengpielaudio.com/calculatorSonephon.htm
              https://www.ventilationdirect.com/CATALOGCONTENT/DOCUMENTS/SOUND%20CONVERSION%20CHART.pdf
     """
-    return 33.2 * (math.log10((20*math.log10(db) / 40))) + 28
+    return math.floor(int(33.2 * (math.log10((20*math.log10(db) / 40))) + 28))
 
 
 from scipy.io.wavfile import read
@@ -63,29 +63,29 @@ def db_increase():
         num = math.floor(int(dataset['DBA'][i]))
         
         if (num >= 120): #120+ DBA sounds are very painful, according to ASHA.
-            dbs.append(num*0.50) #keeping the sound to a safe range
+            dbs.append(math.floor(num*0.50)) #keeping the sound to a safe range
         
         elif (80 <= num < 120):
-            dbs.append(num*0.70)
+            dbs.append(math.floor(num*0.70))
             
         elif (60 <= num < 70):
-            dbs.append(num + 10)
+            dbs.append(math.floor(int(num + 10)))
             
         elif (40 <= num < 60):
-            dbs.append(num + 20)
+            dbs.append(math.floor(int(num + 20)))
         
         elif (num < 40):
-            dbs.append(num*2)
+            dbs.append(math.floor(int(num*2)))
             
         else:
-            dbs.append(num)
+            dbs.append(math.floor(int(num)))
             
     return dbs
 
 new_column = db_increase()
-#dataset['DBIncrease'] = new_column
-dataset.insert(2,'DBIncrease', new_column)
-X = dataset.iloc[:, [1, 2]].values
+dataset['DBIncrease'] = new_column
+#dataset.insert(2,'DBIncrease', new_column)
+X = dataset.iloc[:, 1:2].values
 y = dataset.iloc[:, 3].values
 
 
@@ -93,16 +93,14 @@ y = dataset.iloc[:, 3].values
 from sklearn.cross_validation import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
 
+# PART 2: REGRESSION MODEL  
 
-# PART 2: CLASSIFY MODEL  
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators = 10, random_state = 0)
+regressor.fit(X, y)
 
-# Fitting SVM to the Training set
-from sklearn.naive_bayes import GaussianNB
-classifier = GaussianNB()
-classifier.fit(X_train, y_train)
-
-# Predicting the Test set results
-y_pred = classifier.predict(X_test)
+# Predicting a new result
+y_pred = regressor.predict(dba)[0]
 
 # Set the background sound as a .wav file
 
