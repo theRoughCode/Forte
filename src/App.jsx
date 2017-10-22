@@ -48,7 +48,7 @@ class App extends Component {
     console.log('this.state.blob', blob);
     const TEST = 'http://100.65.207.162:8000/api';
     const URL = 'http://localhost:4000/blob';
-    fetch(TEST, {
+    fetch(URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -227,7 +227,7 @@ class App extends Component {
       this.updatePlayback();
   }
 
-  // 
+  //
   // <Button bsStyle="primary" bsSize="large" onClick={this.startRecording}>record</Button>
   // <Button bsStyle="primary" bsSize="large" onClick={this.pauseRecording}>pause</Button>
   // <Button bsStyle="primary" bsSize="large" onClick={this.playRecording}>play</Button>
