@@ -59,6 +59,7 @@ class App extends Component {
           <div className="App-title">Forte</div>
           <Search
             accessToken={this.state.access_token}
+            playing={this.state.isPlaying}
             setSong={this.setSong}
             setPlaying={this.setPlaying}
           />
@@ -67,7 +68,8 @@ class App extends Component {
           <Player
             className="Player"
             song={this.state.song}
-            isPlaying={this.state.isPlaying}
+            playing={this.state.isPlaying}
+            setPlaying={this.setPlaying}
           />
         )}
       </div>

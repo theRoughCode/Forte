@@ -4,10 +4,6 @@ import Controls from './Controls';
 import Volume from './Volume';
 
 class Player extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render () {
     let song = this.props.song;
 
@@ -19,7 +15,8 @@ class Player extends Component {
           artist={song && song.artists[0].name}
           />
         <Controls
-          isPlaying={this.props.isPlaying}
+          playing={this.props.playing}
+          setPlaying={this.props.setPlaying}
           />
         <Volume />
       </div>

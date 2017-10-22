@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   openUser(user) {
     window.open(user.external_urls.spotify);
   }
@@ -15,6 +11,7 @@ class Header extends Component {
     return (
       <div className="Header">
         <img
+          alt="Profile"
           id="user-img"
           src={user && user.images[0].url}
           onClick={() => this.openUser(user)}

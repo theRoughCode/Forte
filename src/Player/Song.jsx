@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 
 class Song extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render () {
     return (
       <div className="Song">
         <img
+          alt="Album"
           id="song-img"
           src={this.props.img}
         />

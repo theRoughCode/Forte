@@ -82,6 +82,7 @@ class Search extends Component {
               />
               <Gallery
                 tracks={this.state.tracks}
+                playing={this.props.playing}
                 setSong={this.props.setSong}
                 setPlaying={this.props.setPlaying}
               />
