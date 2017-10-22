@@ -61,7 +61,7 @@ class App extends Component {
 
   sendBlob = () => {
     console.log('sending blob');
-    fetch('http://100.65.207.162:8000/api', {
+    fetch('/blob', {
       method: "POST",
       mode: "no-cors",
       headers: {
