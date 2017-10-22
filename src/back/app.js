@@ -1,29 +1,27 @@
-var express = require('express');
-var BinaryServer = require('binaryjs').BinaryServer;
-var fs = require('fs');
-var wav = require('wav');
-var FileReader = require('filereader')
-var bp = require('body-parser')
-var port = 4000;
-var outFile = 'demo.wav';
-var app = express();
+// grab the packages we need
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 4000;
+const path = require('path');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const wav = require('wav');
+const outFile = 'demo.wav';
+const routes = require('./routes');
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-app.listen(port);
-
-
-module.exports = function(app) {
-
-  // todoList Routes
-  app.route('/api')
-    .post(todoList.create_a_task);
-
-
-app.get('/blob', function(req, res){
-  res.render('data');
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
 
-console.log('server open on port ' + port);
+//  Connect all our routes to our application
+app.use('/', routes);
 
-fs.writeFileSync('test.wav', Buffer.from(new Uint8Array(blob)));
-}
+// Turn on that server!
+app.listen(port, () =>
+          console.log('Server started! At http://localhost:' + port));
+app.use(express.static(path.join(__dirname, '/')));

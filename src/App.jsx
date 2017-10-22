@@ -50,7 +50,7 @@ class App extends Component {
       }
     })
       .then(res => {
-        return res.json();
+        return res.text();
       })
       .then(user => {
         this.setState({ user });
@@ -61,22 +61,21 @@ class App extends Component {
 
   sendBlob = () => {
     console.log('sending blob');
-    fetch('/blob', {
-      method: "POST",
-      mode: "no-cors",
+    fetch('http://localhost:4000/blob', {
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
       },
-      body: {
+      body: JSON.stringify({
         blob: this.state.blob
-      }
+      })
     }).then((res) => {
-      console.log('res', res);
-       this.setState({ volume: parseInt(res.text()) });
-       this.startRecording();
-    }, error => {
-      console.error(error);
-    })
+       return res.json();
+    }).then(data => {
+      console.log('res', data);
+      // this.setState({ volume: parseInt(data) });
+      // this.startRecording();
+    });
   }
 
   updatePlayback = () => {

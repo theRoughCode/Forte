@@ -8,7 +8,7 @@
   "dependencies": {
     "binaryjs": "latest",
     "body-parser": "^1.18.2",
-    "express": "latest",
+    "express": "^4.16.2",
     "filereader": "^0.10.3",
     "jade": "latest",
     "wav": "latest"
