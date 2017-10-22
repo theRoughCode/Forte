@@ -7,6 +7,7 @@ import wave
 import json
 import urllib2
 import random
+import subprocess
 
 TESTING = True
 
@@ -70,6 +71,9 @@ def audio():
     
     volum = str(random.randint(60, 90))
     if not TESTING:
+        output_wav = 'demo.wav'
+        '''
+        input_wav = 'original.wav'
         blobUrl = json.dumps(request.json['blob']['blobURL'])
 
         fake_useragent = 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25'
@@ -78,10 +82,8 @@ def audio():
 
         print blobUrl
 
-        input_name = 'original.wav'
-        output_name = 'demo.wav'
         input_file = urllib2.urlopen(blobUrl)
-        with open(input_name,'wb') as output: # write to this file
+        with open(input_wav,'wb') as output: # write to this file
             output.write(input_file.read())
 
         nchannels = 1
@@ -95,9 +97,16 @@ def audio():
         audio.setframerate(framerate)
         audio.setnframes(nframes)
 
-        blob = open(input_name).read() 
+        blob = open(input_wav).read() 
         audio.writeframes(blob)
-        volum = str(v.decibel(wav_file))
+        '''
+        f = open(output_wav, 'wb')
+        f.write(request.data)
+        f.close()
+
+        subprocess.call(['ffmpeg', '-i', 'demo.mp3', 'demo.wav'])
+
+        volum = str(v.decibel(output_wav))
 
     return Response( volum, content_type="text/plain;charset=UTF-8" )
 
