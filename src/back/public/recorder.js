@@ -22,7 +22,6 @@
     }
 
     window.stopRecording = function() {
-      console.log('stop')
       recording = false;
       window.Stream.end();
     }
