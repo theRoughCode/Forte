@@ -4,7 +4,6 @@ import './App.css';
 class Profile extends Component {
   render () {
     let artist = this.props.artist;
-
     return (
       <div className="profile">
         <img
