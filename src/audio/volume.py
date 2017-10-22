@@ -99,6 +99,3 @@ class Volume():
         
         return math.fabs(y_pred)
     
-    
-    
-    

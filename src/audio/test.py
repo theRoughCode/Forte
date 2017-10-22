@@ -15,5 +15,5 @@ import math
 from scipy.io.wavfile import read
 
 def get_rate():
-    sample_rate, wavdata = read('car_screech.wav') # input wav file from Echo here
+    sample_rate, wavdata = read('C4.wav') # input wav file from Echo here
     return sample_rate
