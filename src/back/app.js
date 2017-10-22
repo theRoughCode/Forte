@@ -16,6 +16,10 @@ app.get('/', function(req, res){
   res.render('index');
 });
 
+app.get('/data', function(req, res){
+  res.render('data');
+});
+
 app.listen(port);
 
 console.log('server open on port ' + port);
@@ -43,6 +47,7 @@ binaryServer.on('connection', function(client) {
         sampleRate: 48000,
         bitDepth: 16
       });
+      stream.pipe(fileWriter);
     });
   });
 });

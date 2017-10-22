@@ -16,9 +16,10 @@
 
     var recording = true;
 
-    // window.startRecording = function() {
-    //   recording = true;
-    // }
+    window.startRecording = function() {
+      recording = true;
+      window.Stream = client.createStream();
+    }
 
     window.stopRecording = function() {
       recording = false;

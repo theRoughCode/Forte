@@ -4,6 +4,7 @@
 /node_modules
 /src/back/node_modules
 /src/back/demo.wav
+/src/pyMuse
 
 # testing
 /coverage
