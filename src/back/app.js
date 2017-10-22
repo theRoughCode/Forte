@@ -42,12 +42,12 @@ binaryServer.on('connection', function(client) {
     stream.on('end', function() {
       fileWriter.end();
       console.log('wrote to file ' + outFile);
-      fileWriter = new wav.FileWriter(outFile, {
+      /*fileWriter = new wav.FileWriter(outFile, {
         channels: 1,
         sampleRate: 48000,
         bitDepth: 16
       });
-      stream.pipe(fileWriter);
+      stream.pipe(fileWriter);*/
     });
   });
 });
