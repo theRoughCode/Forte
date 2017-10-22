@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "binaryjs": "latest",
+    "body-parser": "^1.18.2",
     "express": "latest",
+    "filereader": "^0.10.3",
     "jade": "latest",
     "wav": "latest"
   },

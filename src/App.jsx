@@ -24,36 +24,22 @@ class App extends Component {
     const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
 
-
-
-    setInterval(function() {
+    setInterval(() => {
+      if (this.state.blob) this.sendBlob();
       this.pauseRecording();
-      fetch('localhost:5000/bogus', {
-        method: "POST",
-        body: Blob,
-        headers: {
-          "Content-Type": "audio/wav"
-        },
-      }).then(function(res) {
-         console.log(res.status);
-          setVolume(parseInt(res.text()));
-          this.startRecording();
-      }, function(error) {
-        error.message
-      })
     }, 10000);
-
 
     this.state = {
       access_token,
       song: null,
       user: null,
       isPlaying: false,
-      isRecording: false,
+      isRecording: true,
       playRecording: false,
       external: false,
       progress: 0,
-      volume: 0
+      volume: 0,
+      blob: null
     }
 
     // Get user info
@@ -71,6 +57,26 @@ class App extends Component {
       });
 
       this.updatePlayback();
+  }
+
+  sendBlob = () => {
+    console.log('sending blob');
+    fetch('http://100.65.207.162:8000/api', {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: {
+        blob: this.state.blob
+      }
+    }).then((res) => {
+      console.log('res', res);
+       this.setState({ volume: parseInt(res.text()) });
+       this.startRecording();
+    }, error => {
+      console.error(error);
+    })
   }
 
   updatePlayback = () => {
@@ -112,7 +118,8 @@ class App extends Component {
               });
               console.log('Retrieved playback info successfully');
             });
-        this.startRecording();
+        }
+      });
   }
 
   setSong = (song) => {
@@ -184,7 +191,13 @@ class App extends Component {
     });
   }
 
+  setBlob = (blob) => {
+    console.log('blob', blob);
+    this.setState({ blob });
+  }
+
   startRecording = () => {
+    console.log('Recording started');
     this.setState({
       isRecording: true,
       playRecording: false
@@ -192,6 +205,7 @@ class App extends Component {
   }
 
   pauseRecording = () => {
+    console.log('Recording paused');
     this.setState({
       isRecording: false,
       playRecording: false
@@ -212,24 +226,13 @@ class App extends Component {
             <Recorder
               record={this.state.isRecording}
               play={this.state.playRecording}
+              setBlob={this.setBlob}
             />
           </div>
           <Header
             user={this.state.user}
             />
         </div>
-        <Button
-          bsStyle="primary"
-          bsSize="large"
-          onClick={() => this.pauseRecording()}
-          active
-          >Stop</Button>
-        <Button
-          bsStyle="primary"
-          bsSize="large"
-          onClick={() => this.playRecording()}
-          active
-          >Play</Button>
         <div className="Content">
           <div className="App-title">Forte</div>
           <Search
