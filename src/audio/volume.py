@@ -66,7 +66,6 @@ class Volume():
         peak = (math.fabs(maximum)+math.fabs(minimum))/2
 
         amp=[]
-        #I check to see the indices where the max amplitude occurs.  I get no results.
         for i in byteList[0 : nframes]:
             if peak <= (byteList[i]):
                 amp.append(peak)
