@@ -6,6 +6,7 @@ import Header from './Header';
 import Search from './Search';
 import Player from './Player/Player';
 
+
 /*
 https://accounts.spotify.com/authorize/?client_id=7999c825615341ee8c791189eca005d5&response_type=token&redirect_uri=http://localhost:3000/
 */
@@ -19,6 +20,12 @@ class App extends Component {
 
     const FETCH_URL = `https://api.spotify.com/v1/me`;
     const access_token = queryString.parse(window.location.hash).access_token;
+
+    var ws = new WebSocket('uri');
+    ws.onopen(function(evt){
+      console.log('Connected to websocket');
+      ws.send("sample rate:" + sampleRate);
+    })
 
     this.state = {
       access_token,
@@ -48,6 +55,15 @@ class App extends Component {
   setPlaying = (isPlaying) => {
     this.setState({ isPlaying });
   }
+
+  var oReq = new XMLHttpRequest();
+  oReq.responseType = 'text'
+  oReq.open("POST", url, true);
+  oReq.onload = function () {
+    console.log(oReq.reponse);
+};
+  oReq.send(blob);
+
 
   render() {
     return (
