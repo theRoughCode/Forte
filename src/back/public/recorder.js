@@ -14,11 +14,11 @@
       });
     } else alert('getUserMedia not supported in this browser.');
 
-    var recording = true;
+    var recording = false;
 
     window.startRecording = function() {
       recording = true;
-      window.Stream = client.createStream();
+      //window.Stream = client.createStream();
     }
 
     window.stopRecording = function() {
