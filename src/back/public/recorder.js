@@ -1,6 +1,6 @@
 (function(window) {
   var client = new BinaryClient('ws://localhost:9001');
-
+  
   client.on('open', function() {
     window.Stream = client.createStream();
 
@@ -44,7 +44,7 @@
       }
 
       audioInput.connect(recorder)
-      recorder.connect(context.destination); 
+      recorder.connect(context.destination);
     }
 
     function convertoFloat32ToInt16(buffer) {
