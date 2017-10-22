@@ -9,12 +9,12 @@ from volume import Volume
 v = Volume()
 
 app = Flask(__name__)
-input_file = 'in.wav'
+input_file = 'demo.wav'
 
-nchannels = 1
-sampwidth = 1
-framerate = 8000
-nframes = 1
+# nchannels = 1
+# sampwidth = 1
+# framerate = 8000
+# nframes = 1
 
 def toWav(audio_as_int_array):
     wavf.write(input_file, test.get_rate(), audio_as_int_array)
@@ -27,20 +27,20 @@ def audio():
     # print '\n---\n'
     # print 'Blob: ', request.form['blob']
     # print '\n---\n'
-    print request.get_json(force=True)
-    print request.get_data()
-    print request.form
+    # print request.get_json(force=True)
+    # print request.get_data()
+    # print request.form
 
     # resp = Response("{'a':'b'}", status=201, mimetype='application/json')
     # return resp
 
-    return Response(
-        'Hello World',
-        headers={
-            'Cache-Control': 'no-cache',
-            'Access-Control-Allow-Origin': '*'
-        }
-    )
+    # return Response(
+    #     'Hello World',
+    #     headers={
+    #         'Cache-Control': 'no-cache',
+    #         'Access-Control-Allow-Origin': '*'
+    #     }
+    # )
 
     # return Response("pong\n", content_type="text/plain;charset=UTF-8")
 
@@ -56,7 +56,7 @@ def audio():
     # blob = open(input_file).read()
     # audio.writeframes(blob)
 
-    # return str(v.decibel(input_file))
+    return str(v.decibel(input_file))
 
 @app.route('/hello', methods=['POST','GET'])
 def hello():
